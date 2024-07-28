@@ -4,8 +4,8 @@ class TokenType(Enum):
     # Single-character tokens.
     LEFT_PAREN = '('
     RIGHT_PAREN = ')'
-    LEFT_BRACE = '['
-    RIGHT_BRACE = ']'
+    LEFT_BRACE = '{'
+    RIGHT_BRACE = '}'
     COMMA = ','
     DOT = '.'
     MINUS = '-'
@@ -25,7 +25,7 @@ class TokenType(Enum):
     LESS_EQUAL = '<='
 
     # Literals.
-    IDENTIFIER = '='
+    IDENTIFIER = 'id'
     STRING = 'String'
     NUMBER = 'Num'
 
@@ -49,6 +49,25 @@ class TokenType(Enum):
 
     EOF = 'EOF'
 
+KEYWORDS = {
+    "and": TokenType.AND,
+    "class": TokenType.CLASS,
+    "else": TokenType.ELSE,
+    "false": TokenType.FALSE,
+    "fun": TokenType.FUN,
+    "for": TokenType.FOR,
+    "if": TokenType.IF,
+    "nil": TokenType.NIL,
+    "or": TokenType.OR,
+    "print": TokenType.PRINT,
+    "return": TokenType.RETURN,
+    "super": TokenType.SUPER,
+    "this": TokenType.THIS,
+    "true": TokenType.TRUE,
+    "var": TokenType.VAR,
+    "while": TokenType.WHILE,
+}
+
 class Token:
     def __init__(self, type: TokenType, lexeme: str, literal, line: int):
         self.type = type
@@ -57,4 +76,4 @@ class Token:
         self.line = line
 
     def toString(self):
-        return self.type + " " + self.lexeme + " " + self.literal
+        return self.type.value + " " + self.lexeme + " " + self.literal
