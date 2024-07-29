@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+from Scanner import Scanner
 
 class Lox:
     hadError = False
@@ -38,12 +39,12 @@ class Lox:
         return
     
     @staticmethod
-    def run(self, file):
-        # scanner = Scanner(source)
-        # tokens = scanner.scanTokens()
+    def run(self, source):
+        scanner = Scanner(source)
+        tokens = scanner.scanTokens()
 
-        # for token in tokens:
-        #     print(token)
+        for token in tokens:
+            print(token.toString())
         return
     
     @staticmethod
@@ -57,4 +58,4 @@ class Lox:
 
 
 if __name__ == '__main__':
-    Lox().main()
+    Lox.main()
