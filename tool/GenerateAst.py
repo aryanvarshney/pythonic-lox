@@ -65,7 +65,7 @@ class GenerateAst:
         for type in types:
             typeName = type.split('->')[0].strip()
             file.write("        @abstractmethod\n")
-            file.write("        def visit" + typeName + baseName + "(" + baseName + ": '" + typeName + "'):\n")
+            file.write("        def visit" + typeName + baseName + "(self, " + baseName + ": '" + typeName + "'):\n")
             file.write("            pass\n\n")
         
 

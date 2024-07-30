@@ -5,19 +5,19 @@ from Token import Token
 class Expr(ABC):
     class Visitor(ABC):
         @abstractmethod
-        def visitBinaryExpr(Expr: 'Binary'):
+        def visitBinaryExpr(self, Expr: 'Binary'):
             pass
 
         @abstractmethod
-        def visitGroupingExpr(Expr: 'Grouping'):
+        def visitGroupingExpr(self, Expr: 'Grouping'):
             pass
 
         @abstractmethod
-        def visitLiteralExpr(Expr: 'Literal'):
+        def visitLiteralExpr(self, Expr: 'Literal'):
             pass
 
         @abstractmethod
-        def visitUnaryExpr(Expr: 'Unary'):
+        def visitUnaryExpr(self, Expr: 'Unary'):
             pass
 
 class Binary(Expr):
