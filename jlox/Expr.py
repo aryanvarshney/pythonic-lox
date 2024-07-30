@@ -58,7 +58,3 @@ class Unary(Expr):
     def accept(self, visitor):
         return visitor.visitUnaryExpr(self)
 
-    @abstractmethod
-    def accept(visitor):
-        pass
-

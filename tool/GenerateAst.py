@@ -32,11 +32,6 @@ class GenerateAst:
                 className = parts[0].strip()
                 fields = parts[1].strip()
                 GenerateAst.defineType(file, baseName, className, fields)
-
-            file.write("    @abstractmethod\n")
-            file.write("    def accept(visitor):\n")
-            file.write("        pass\n")
-            file.write("\n")
     
     @staticmethod
     def defineType(file, baseName: str, className: str, fieldList: str):
