@@ -1,5 +1,5 @@
 from Token import Token, TokenType, KEYWORDS
-from Lox import Lox
+from LoxError import LoxError
 
 DIGITS = '0123456789'
 
@@ -45,7 +45,7 @@ class Scanner:
         elif self.isAlpha(c):
             self.identifier()
         else:
-            Lox.error(self.line, "Unexpecter Character.")
+            LoxError.error(self.line, "Unexpecter Character.")
 
     def advance(self):
         c = self.source[self.current]
@@ -77,12 +77,12 @@ class Scanner:
                 self.line += 1
             self.advance()
         if self.isAtEnd():
-            Lox.error(self.line, "Unterminated string.")
+            LoxError.error(self.line, "Unterminated string.")
             return
         self.advance()
         
         val = self.source[self.start+1:self.current-1]
-        self.addToken(TokenType.STRING, val)
+        self.addTokenWithLiteral(TokenType.STRING, val)
     
     def number(self):
         while self.peek() in DIGITS:
@@ -92,7 +92,7 @@ class Scanner:
             while self.peek() in DIGITS:
                 self.advance()
         
-        self.addToken(TokenType.NUMBER, float(self.source[self.start:self.current]))
+        self.addTokenWithLiteral(TokenType.NUMBER, float(self.source[self.start:self.current]))
     
     def identifier(self):
         while self.isAlphaNumeric(self.peek()):
@@ -105,9 +105,9 @@ class Scanner:
             self.addToken(TokenType.IDENTIFIER)
     
     def addToken(self, type: TokenType):
-        self.addToken(type, None)
+        self.addTokenWithLiteral(type, None)
     
-    def addToken(self, type: TokenType, literal):
+    def addTokenWithLiteral(self, type: TokenType, literal):
         text = self.source[self.start:self.current]
         self.tokens.append(Token(type, text, literal, self.line))
     

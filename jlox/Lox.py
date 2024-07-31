@@ -1,6 +1,8 @@
 import argparse
 from pathlib import Path
 from Scanner import Scanner
+from Parser import Parser
+from AstPrinter import AstPrinter
 
 class Lox:
     hadError = False
@@ -16,7 +18,7 @@ class Lox:
             Lox.runPrompt()
     
     @staticmethod
-    def runFile(file_path):
+    def runFile(file_path: str):
         p = Path(file_path)
         if not p.exists() and not p.is_file():
             raise SystemExit("Invalid file path: " + file_path)
@@ -39,22 +41,17 @@ class Lox:
         return
     
     @staticmethod
-    def run(self, source):
+    def run(source: str):
         scanner = Scanner(source)
         tokens = scanner.scanTokens()
 
-        for token in tokens:
-            print(token.toString())
-        return
-    
-    @staticmethod
-    def error(line_number, message):
-        Lox.report(line_number, "", message)
-    
-    @staticmethod
-    def report(line_number, where, message):
-        SystemError("[line " + str(line_number + "] Error" + where + ": " + message))
-        Lox.hadError = True
+        parser = Parser(tokens)
+        expression = parser.parse()
+
+        if Lox.hadError:
+            return
+        
+        print(AstPrinter().print(expression))
 
 
 if __name__ == '__main__':
