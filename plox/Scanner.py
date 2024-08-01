@@ -115,7 +115,7 @@ class Scanner:
         return (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or c == '_'
     
     def isAlphaNumeric(self, c):
-        return self.isAlpha() or c in DIGITS
+        return self.isAlpha(c) or c in DIGITS
     
     def isAtEnd(self):
         return self.current >= len(self.source)

@@ -1,5 +1,6 @@
 from Token import Token, TokenType
 from Expr import Binary, Unary, Literal, Grouping
+from Stmt import Expression, Print
 from LoxError import LoxError
 
 class Parser():
@@ -11,13 +12,29 @@ class Parser():
         self.current = 0
 
     def parse(self):
-        try:
-            return self.expression()
-        except self.ParseError:
-            return None
+        statements = []
+        while not self.isAtEnd():
+            statements.append(self.statement())
+        
+        return statements
 
     def expression(self):
         return self.equality()
+    
+    def statement(self):
+        if self.match([TokenType.PRINT]):
+            return self.printStatement()
+        return self.expressionStatement()
+    
+    def printStatement(self):
+        value = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ':' after value.")
+        return Print(value)
+    
+    def expressionStatement(self):
+        expr = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ':' after value")
+        return Expression(expr)
     
     def equality(self):
         expr = self.comparison()

@@ -51,12 +51,12 @@ class Lox:
         tokens = scanner.scanTokens()
 
         parser = Parser(tokens)
-        expression = parser.parse()
+        statements = parser.parse()
 
         if Lox.hadError:
             return
         
-        Lox.interpreter.interpret(expression)
+        Lox.interpreter.interpret(statements)
 
 
 if __name__ == '__main__':

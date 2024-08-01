@@ -1,16 +1,18 @@
 from Expr import Expr, Grouping, Literal, Unary, Binary
+from Stmt import Stmt, Print, Expression 
 from Token import Token, TokenType
 from RuntimeErr import RuntimeErr
 from LoxError import LoxError
 
-class Interpreter(Expr.Visitor):
+class Interpreter(Expr.Visitor, Stmt.Visitor):
     hadRuntimeError = False
 
-    def interpret(self, expression: Expr):
+    def interpret(self, statements):
         try:
-            value = self.evaluate(expression)
-            print(self.stringify(value))
+            for statement in statements:
+                self.execute(statement)
         except RuntimeErr as err:
+            self.hadRuntimeError = True
             LoxError.runtimeError(err)
     
     def visitLiteralExpr(self, Expr: Literal):
@@ -70,6 +72,13 @@ class Interpreter(Expr.Visitor):
         
         return None
     
+    def visitExpressionStmt(self, Stmt: Expression):
+        self.evaluate(Stmt.expression)
+    
+    def visitPrintStmt(self, Stmt: Print):
+        value = self.evaluate(Stmt.expression)
+        print(self.stringify(value))
+    
     def isTruthy(self, object):
         if object is None:
             return False
@@ -97,17 +106,18 @@ class Interpreter(Expr.Visitor):
     def checkNumberOperand(self, operator: Token, operand):
         if type(operand) == float:
             return
-        self.hadRuntimeError = True
         raise RuntimeErr(operator, "Operand must be a number")
     
     def checkNumberOperands(self, operator: Token, left, right):
         if type(left) == float and type(right) == float:
             return
-        self.hadRuntimeError = True
         raise RuntimeErr(operator, "Operands must be a number")
     
     def evaluate(self, Expr: Expr):
         return Expr.accept(self)
+    
+    def execute(self, stmt: Stmt):
+        stmt.accept(self)
     
 
      
