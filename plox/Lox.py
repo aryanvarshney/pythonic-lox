@@ -3,9 +3,11 @@ from pathlib import Path
 from Scanner import Scanner
 from Parser import Parser
 from AstPrinter import AstPrinter
+from Interpreter import Interpreter
 
 class Lox:
     hadError = False
+    interpreter = Interpreter()
 
     @staticmethod
     def main():
@@ -28,7 +30,9 @@ class Lox:
         Lox.run(file)
 
         if Lox.hadError:
-            SystemExit("There was an error in the code")
+            SyntaxError("There was an error in compiling the code")
+        if Lox.interpreter.hadRuntimeError:
+            RuntimeError("There was an error in running the code")
     
     @staticmethod
     def runPrompt():
@@ -38,6 +42,7 @@ class Lox:
                 break
             Lox.run(line)
             Lox.hadError = False
+            Lox.interpreter.hadRuntimeError = False
         return
     
     @staticmethod
@@ -51,7 +56,7 @@ class Lox:
         if Lox.hadError:
             return
         
-        print(AstPrinter().print(expression))
+        Lox.interpreter.interpret(expression)
 
 
 if __name__ == '__main__':

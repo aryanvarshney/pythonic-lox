@@ -1,6 +1,11 @@
 from Token import Token, TokenType
+from RuntimeErr import RuntimeErr
 
 class LoxError():
+    @staticmethod
+    def runtimeError(err: RuntimeErr):
+        SystemError(err.getMessage() + "\n[line " + err.token.line + "]")
+
     @staticmethod
     def error(line_number: int, message: str):
         LoxError.report(line_number, "", message)
