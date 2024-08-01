@@ -13,6 +13,10 @@ class Stmt(ABC):
         def visitPrintStmt(self, Stmt: 'Print'):
             pass
 
+        @abstractmethod
+        def visitVarStmt(self, Stmt: 'Var'):
+            pass
+
 class Expression(Stmt):
     expression = None
     def __init__(self, expression: Expr):
@@ -28,4 +32,14 @@ class Print(Stmt):
 
     def accept(self, visitor):
         return visitor.visitPrintStmt(self)
+
+class Var(Stmt):
+    name = None
+    initializer = None
+    def __init__(self, name: Token, initializer: Expr):
+        self.name = name
+        self.initializer = initializer
+
+    def accept(self, visitor):
+        return visitor.visitVarStmt(self)
 

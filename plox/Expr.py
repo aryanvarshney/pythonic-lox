@@ -20,6 +20,10 @@ class Expr(ABC):
         def visitUnaryExpr(self, Expr: 'Unary'):
             pass
 
+        @abstractmethod
+        def visitVariableExpr(self, Expr: 'Variable'):
+            pass
+
 class Binary(Expr):
     left = None
     operator = None
@@ -57,4 +61,12 @@ class Unary(Expr):
 
     def accept(self, visitor):
         return visitor.visitUnaryExpr(self)
+
+class Variable(Expr):
+    name = None
+    def __init__(self, name: Token):
+        self.name = name
+
+    def accept(self, visitor):
+        return visitor.visitVariableExpr(self)
 

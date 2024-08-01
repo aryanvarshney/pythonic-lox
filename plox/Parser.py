@@ -1,6 +1,6 @@
 from Token import Token, TokenType
-from Expr import Binary, Unary, Literal, Grouping
-from Stmt import Expression, Print
+from Expr import Binary, Unary, Literal, Grouping, Variable
+from Stmt import Expression, Print, Var
 from LoxError import LoxError
 
 class Parser():
@@ -14,12 +14,21 @@ class Parser():
     def parse(self):
         statements = []
         while not self.isAtEnd():
-            statements.append(self.statement())
+            statements.append(self.declaration())
         
         return statements
 
     def expression(self):
         return self.equality()
+    
+    def declaration(self):
+        try:
+            if self.match([TokenType.VAR]):
+                return self.varDeclaration()
+            return self.statement()
+        except self.ParseError:
+            self.synchronize()
+            return None
     
     def statement(self):
         if self.match([TokenType.PRINT]):
@@ -30,6 +39,16 @@ class Parser():
         value = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ':' after value.")
         return Print(value)
+    
+    def varDeclaration(self):
+        name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
+
+        initializer = None
+        if self.match(TokenType.EQUAL):
+            initializer = self.expression()
+
+        self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration")
+        return Var(name, initializer)
     
     def expressionStatement(self):
         expr = self.expression()
@@ -93,6 +112,8 @@ class Parser():
             return Literal(None)
         if self.match([TokenType.NUMBER, TokenType.STRING]):
             return Literal(self.previous().literal)
+        if self.match([TokenType.IDENTIFIER]):
+            return Variable(self.previous())
         if self.match([TokenType.LEFT_PAREN]):
             expr = self.expression()
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression")
