@@ -3,9 +3,13 @@ from Stmt import Stmt, Print, Expression
 from Token import Token, TokenType
 from RuntimeErr import RuntimeErr
 from LoxError import LoxError
+from Environment import Environment
+from plox.Expr import Variable
+from plox.Stmt import Var
 
 class Interpreter(Expr.Visitor, Stmt.Visitor):
     hadRuntimeError = False
+    environment = Environment()
 
     def interpret(self, statements):
         try:
@@ -72,12 +76,22 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
         
         return None
     
+    def visitVariableExpr(self, Expr: Variable):
+        return self.environment.get(Expr.name )
+    
     def visitExpressionStmt(self, Stmt: Expression):
         self.evaluate(Stmt.expression)
     
     def visitPrintStmt(self, Stmt: Print):
         value = self.evaluate(Stmt.expression)
         print(self.stringify(value))
+    
+    def visitVarStmt(self, Stmt: Var):
+        value = None
+        if Stmt.initializer is not None:
+            value = self.evaluate(Stmt.initializer)
+        
+        self.environment.define(Stmt.name.lexeme, value)
     
     def isTruthy(self, object):
         if object is None:
