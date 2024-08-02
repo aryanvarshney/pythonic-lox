@@ -5,6 +5,10 @@ from Token import Token
 class Expr(ABC):
     class Visitor(ABC):
         @abstractmethod
+        def visitAssignExpr(self, Expr: 'Assign'):
+            pass
+
+        @abstractmethod
         def visitBinaryExpr(self, Expr: 'Binary'):
             pass
 
@@ -23,6 +27,16 @@ class Expr(ABC):
         @abstractmethod
         def visitVariableExpr(self, Expr: 'Variable'):
             pass
+
+class Assign(Expr):
+    name = None
+    value = None
+    def __init__(self, name: Token, value: Expr):
+        self.name = name
+        self.value = value
+
+    def accept(self, visitor):
+        return visitor.visitAssignExpr(self)
 
 class Binary(Expr):
     left = None

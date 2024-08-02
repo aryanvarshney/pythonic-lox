@@ -4,7 +4,7 @@ from Token import Token, TokenType
 from RuntimeErr import RuntimeErr
 from LoxError import LoxError
 from Environment import Environment
-from plox.Expr import Variable
+from plox.Expr import Assign, Variable
 from plox.Stmt import Var
 
 class Interpreter(Expr.Visitor, Stmt.Visitor):
@@ -92,6 +92,11 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
             value = self.evaluate(Stmt.initializer)
         
         self.environment.define(Stmt.name.lexeme, value)
+
+    def visitAssignExpr(self, Expr: Assign):
+        value = Expr.value
+        self.environment.assign(Expr.name, value)
+        return value
     
     def isTruthy(self, object):
         if object is None:

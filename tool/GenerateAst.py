@@ -10,6 +10,7 @@ class GenerateAst:
         args = parser.parse_args()
         outputDir = args.f
         GenerateAst.defineAst(outputDir, "Expr", [
+            "Assign   -> name: Token, value: Expr",
             "Binary   -> left: Expr, operator: Token, right: Expr",
             "Grouping -> expression: Expr",
             "Literal  -> value",

@@ -1,5 +1,5 @@
 from Token import Token, TokenType
-from Expr import Binary, Unary, Literal, Grouping, Variable
+from Expr import Binary, Unary, Literal, Grouping, Variable, Assign
 from Stmt import Expression, Print, Var
 from LoxError import LoxError
 
@@ -19,7 +19,7 @@ class Parser():
         return statements
 
     def expression(self):
-        return self.equality()
+        return self.assignment()
     
     def declaration(self):
         try:
@@ -54,6 +54,20 @@ class Parser():
         expr = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ':' after value")
         return Expression(expr)
+    
+    def assignment(self):
+        expr = self.equality()
+        if self.match([TokenType.EQUAL]):
+            equals = self.previous()
+            value = self.assignment()
+
+            if type(expr) == Variable:
+                name = expr.name
+                return Assign(name, value)
+            
+            self.error(equals, "Invalid assignment target")
+        
+        return expr
     
     def equality(self):
         expr = self.comparison()
