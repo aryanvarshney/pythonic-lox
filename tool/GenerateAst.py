@@ -21,6 +21,7 @@ class GenerateAst:
         GenerateAst.defineAst(outputDir, "Stmt", [
             "Block      -> statements",
             "Expression -> expression: Expr",
+            "If         -> condition: Expr, thenBranch: Stmt, elseBranch: Stmt",
             "Print      -> expression: Expr",
             "Var        -> name: Token, initializer: Expr"
         ])

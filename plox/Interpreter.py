@@ -4,6 +4,7 @@ from Token import Token, TokenType
 from RuntimeErr import RuntimeErr
 from LoxError import LoxError
 from Environment import Environment
+from plox.Stmt import If
 
 class Interpreter(Expr.Visitor, Stmt.Visitor):
     hadRuntimeError = False
@@ -79,6 +80,12 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
     
     def visitExpressionStmt(self, Stmt: Expression):
         self.evaluate(Stmt.expression)
+
+    def visitIfStmt(self, Stmt: If):
+        if self.isTruthy(self.evaluate(Stmt.condition)):
+            self.execute(Stmt.thenBranch)
+        elif Stmt.elseBranch is not None:
+            self.execute(Stmt.elseBranch)
     
     def visitPrintStmt(self, Stmt: Print):
         value = self.evaluate(Stmt.expression)
