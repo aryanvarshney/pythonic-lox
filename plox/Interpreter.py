@@ -1,10 +1,9 @@
-from Expr import Expr, Grouping, Literal, Unary, Binary, Assign, Variable
-from Stmt import Stmt, Print, Expression, Block, Var
+from Expr import Expr, Grouping, Literal, Unary, Binary, Assign, Variable, Logical
+from Stmt import Stmt, Print, Expression, Block, Var, If
 from Token import Token, TokenType
 from RuntimeErr import RuntimeErr
 from LoxError import LoxError
 from Environment import Environment
-from plox.Stmt import If
 
 class Interpreter(Expr.Visitor, Stmt.Visitor):
     hadRuntimeError = False
@@ -20,6 +19,18 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
     
     def visitLiteralExpr(self, Expr: Literal):
         return Expr.value
+    
+    def visitLogicalExpr(self, Expr: Logical):
+        left = self.evaluate(Expr.left)
+
+        if Expr.operator.type == TokenType.OR:
+            if self.isTruthy(left):
+                return left
+        else:
+            if not self.isTruthy(left):
+                return left
+        
+        return self.evaluate(Expr.left)
     
     def visitGroupingExpr(self, Expr: Grouping):
         return self.evaluate(Expr.expression)

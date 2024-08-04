@@ -1,5 +1,5 @@
 from Token import Token, TokenType
-from Expr import Binary, Unary, Literal, Grouping, Variable, Assign
+from Expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical
 from Stmt import Expression, Print, Var, Block, If
 from LoxError import LoxError
 
@@ -83,7 +83,7 @@ class Parser():
         return statements
     
     def assignment(self):
-        expr = self.equality()
+        expr = self.orExpr()
         if self.match([TokenType.EQUAL]):
             equals = self.previous()
             value = self.assignment()
@@ -93,6 +93,26 @@ class Parser():
                 return Assign(name, value)
             
             self.error(equals, "Invalid assignment target")
+        
+        return expr
+    
+    def orExpr(self):
+        expr = self.andExpr()
+
+        while self.match([TokenType.OR]):
+            operator = self.previous()
+            right = self.andExpr()
+            expr = Logical(expr, operator, right)
+        
+        return expr
+    
+    def andExpr(self):
+        expr = self.equality()
+
+        while self.match([TokenType.AND]):
+            operator = self.previous()
+            right = self.equality()
+            expr = Logical(expr, operator, right)
         
         return expr
     
