@@ -1,11 +1,9 @@
-from Expr import Expr, Grouping, Literal, Unary, Binary
-from Stmt import Stmt, Print, Expression 
+from Expr import Expr, Grouping, Literal, Unary, Binary, Assign, Variable
+from Stmt import Stmt, Print, Expression, Block, Var
 from Token import Token, TokenType
 from RuntimeErr import RuntimeErr
 from LoxError import LoxError
 from Environment import Environment
-from plox.Expr import Assign, Variable
-from plox.Stmt import Var
 
 class Interpreter(Expr.Visitor, Stmt.Visitor):
     hadRuntimeError = False
@@ -77,7 +75,7 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
         return None
     
     def visitVariableExpr(self, Expr: Variable):
-        return self.environment.get(Expr.name )
+        return self.environment.get(Expr.name)
     
     def visitExpressionStmt(self, Stmt: Expression):
         self.evaluate(Stmt.expression)
@@ -97,6 +95,9 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
         value = Expr.value
         self.environment.assign(Expr.name, value)
         return value
+    
+    def visitBlockStmt(self, Stmt: Block):
+        self.executeBlock(Stmt.statements, Environment(self.environment))
     
     def isTruthy(self, object):
         if object is None:
@@ -138,5 +139,12 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
     def execute(self, stmt: Stmt):
         stmt.accept(self)
     
-
-     
+    def executeBlock(self, statements, environment: Environment):
+        previous = self.environment
+        try:
+            self.environment = environment
+            for statement in statements:
+                self.execute(statement)
+        finally:
+            self.environment = previous
+    

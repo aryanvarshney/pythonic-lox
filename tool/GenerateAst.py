@@ -19,6 +19,7 @@ class GenerateAst:
         ])
 
         GenerateAst.defineAst(outputDir, "Stmt", [
+            "Block      -> statements",
             "Expression -> expression: Expr",
             "Print      -> expression: Expr",
             "Var        -> name: Token, initializer: Expr"

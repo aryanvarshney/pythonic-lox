@@ -6,6 +6,10 @@ from Token import Token
 class Stmt(ABC):
     class Visitor(ABC):
         @abstractmethod
+        def visitBlockStmt(self, Stmt: 'Block'):
+            pass
+
+        @abstractmethod
         def visitExpressionStmt(self, Stmt: 'Expression'):
             pass
 
@@ -16,6 +20,14 @@ class Stmt(ABC):
         @abstractmethod
         def visitVarStmt(self, Stmt: 'Var'):
             pass
+
+class Block(Stmt):
+    statements = None
+    def __init__(self, statements):
+        self.statements = statements
+
+    def accept(self, visitor):
+        return visitor.visitBlockStmt(self)
 
 class Expression(Stmt):
     expression = None

@@ -19,4 +19,4 @@ class LoxError():
     
     @staticmethod
     def report(line_number: int, where: str, message: str):
-        SystemError("[line " + str(line_number + "] Error" + where + ": " + message))
+        SystemError("[line " + str(line_number) + "] Error" + where + ": " + message)

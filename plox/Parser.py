@@ -1,11 +1,13 @@
 from Token import Token, TokenType
 from Expr import Binary, Unary, Literal, Grouping, Variable, Assign
-from Stmt import Expression, Print, Var
+from Stmt import Expression, Print, Var, Block
 from LoxError import LoxError
 
 class Parser():
     class ParseError(Exception):
         pass
+    
+    counter = 0
 
     def __init__(self, tokens):
         self.tokens = tokens
@@ -33,6 +35,8 @@ class Parser():
     def statement(self):
         if self.match([TokenType.PRINT]):
             return self.printStatement()
+        if self.match([TokenType.LEFT_BRACE]):
+            return Block(self.block())
         return self.expressionStatement()
     
     def printStatement(self):
@@ -44,7 +48,7 @@ class Parser():
         name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
 
         initializer = None
-        if self.match(TokenType.EQUAL):
+        if self.match([TokenType.EQUAL]):
             initializer = self.expression()
 
         self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration")
@@ -54,6 +58,15 @@ class Parser():
         expr = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ':' after value")
         return Expression(expr)
+    
+    def block(self):
+        statements = []
+
+        while not self.check(TokenType.RIGHT_BRACE) and not self.isAtEnd():
+            statements.append(self.declaration())
+        
+        self.consume(TokenType.RIGHT_BRACE, "Expect '}' after block")
+        return statements
     
     def assignment(self):
         expr = self.equality()
@@ -133,7 +146,7 @@ class Parser():
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression")
             return Grouping(expr)
         
-        raise self.errorToken(self.peek(), "Expected Expression")
+        raise self.error(self.peek(), "Expected Expression")
     
     def match(self, types):
         for type in types:
@@ -145,7 +158,7 @@ class Parser():
     def consume(self, type: TokenType, message: str):
         if self.check(type):
             return self.advance()
-        raise self.errorToken(self.peek(), message)
+        raise self.error(self.peek(), message)
     
     def check(self, type: TokenType):
         if self.isAtEnd():
