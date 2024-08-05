@@ -20,8 +20,10 @@ class Environment:
     def assign(self, name: Token, value):
         if (name.lexeme in self.value_map):
             self.value_map[name.lexeme] = value
+            return
         elif self.enclosing is not None:
             self.enclosing.assign(name, value)
+            return
         
         raise RuntimeErr(name, "Undefined variable '" + name.lexeme + "'.")
     

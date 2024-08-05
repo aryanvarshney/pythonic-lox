@@ -4,5 +4,8 @@ class RuntimeErr(RuntimeError):
     token = None
 
     def __init__(self, token: Token, message: str):
-        super(message)
+        self.message = message
         self.token = token
+    
+    def getMessage(self):
+        return self.message

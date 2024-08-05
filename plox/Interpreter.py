@@ -1,5 +1,5 @@
 from Expr import Expr, Grouping, Literal, Unary, Binary, Assign, Variable, Logical
-from Stmt import Stmt, Print, Expression, Block, Var, If
+from Stmt import Stmt, Print, Expression, Block, Var, If, While
 from Token import Token, TokenType
 from RuntimeErr import RuntimeErr
 from LoxError import LoxError
@@ -108,9 +108,13 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
             value = self.evaluate(Stmt.initializer)
         
         self.environment.define(Stmt.name.lexeme, value)
+    
+    def visitWhileStmt(self, Stmt: While):
+        while self.isTruthy(self.evaluate(Stmt.condition)):
+            self.execute(Stmt.body)
 
     def visitAssignExpr(self, Expr: Assign):
-        value = Expr.value
+        value = self.evaluate(Expr.value)
         self.environment.assign(Expr.name, value)
         return value
     
