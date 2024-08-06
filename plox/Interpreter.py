@@ -1,10 +1,10 @@
 from Expr import Expr, Grouping, Literal, Unary, Binary, Assign, Variable, Logical, Call
-from Stmt import Stmt, Print, Expression, Block, Var, If, While
+from Stmt import Stmt, Print, Expression, Block, Var, If, While, Function
 from Token import Token, TokenType
 from RuntimeErr import RuntimeErr
 from LoxError import LoxError
 from Environment import Environment
-from LoxCallable import LoxCallable
+from LoxCallable import LoxCallable, LoxFunction
 import time
 
 class Interpreter(Expr.Visitor, Stmt.Visitor):
@@ -106,8 +106,8 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
         arguments = []
         for argument in Expr.arguments:
             arguments.append(self.evaluate(argument))
-        
-        if not isinstance(type(callee), LoxCallable):
+
+        if not issubclass(type(callee), LoxCallable):
             raise RuntimeErr(Expr.paren, "Can only call functions and classes")
         
         function = callee
@@ -120,6 +120,10 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
     
     def visitExpressionStmt(self, Stmt: Expression):
         self.evaluate(Stmt.expression)
+
+    def visitFunctionStmt(self, Stmt: Function):
+        function = LoxFunction(Stmt)
+        self.environment.define(Stmt.name.lexeme, function)
 
     def visitIfStmt(self, Stmt: If):
         if self.isTruthy(self.evaluate(Stmt.condition)):

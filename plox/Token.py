@@ -75,5 +75,5 @@ class Token:
         self.literal = literal
         self.line = line
 
-    def toString(self):
+    def __str__(self):
         return self.type.value + " " + self.lexeme + " " + self.literal

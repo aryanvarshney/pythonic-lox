@@ -4,7 +4,7 @@ from RuntimeErr import RuntimeErr
 class LoxError():
     @staticmethod
     def runtimeError(err: RuntimeErr):
-        raise RuntimeError(err.getMessage() + "\n[line " + str(err.token.line) + "]")
+        print(err.getMessage() + "\n[line " + str(err.token.line) + "]")
 
     @staticmethod
     def error(line_number: int, message: str):
