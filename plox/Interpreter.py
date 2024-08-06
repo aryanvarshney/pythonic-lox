@@ -1,13 +1,27 @@
-from Expr import Expr, Grouping, Literal, Unary, Binary, Assign, Variable, Logical
+from Expr import Expr, Grouping, Literal, Unary, Binary, Assign, Variable, Logical, Call
 from Stmt import Stmt, Print, Expression, Block, Var, If, While
 from Token import Token, TokenType
 from RuntimeErr import RuntimeErr
 from LoxError import LoxError
 from Environment import Environment
+from LoxCallable import LoxCallable
+import time
 
 class Interpreter(Expr.Visitor, Stmt.Visitor):
     hadRuntimeError = False
     environment = Environment()
+    global_scope = environment
+
+    def __init__(self):
+        class ClockCallable(LoxCallable):
+            def arity(self):
+                return 0
+            def call(self, interpreter, arguments):
+                return time.time() * 1000
+            def __str__(self):
+                return "<native fun>"
+        
+        self.global_scope.define("clock", ClockCallable)
 
     def interpret(self, statements):
         try:
@@ -85,6 +99,21 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
             return self.isEqual(left, right)
         
         return None
+    
+    def visitCallExpr(self, Expr: Call):
+        callee = self.evaluate(Expr.callee)
+
+        arguments = []
+        for argument in Expr.arguments:
+            arguments.append(self.evaluate(argument))
+        
+        if not isinstance(type(callee), LoxCallable):
+            raise RuntimeErr(Expr.paren, "Can only call functions and classes")
+        
+        function = callee
+        if len(arguments) != function.arity():
+            raise RuntimeErr(Expr.paren, "Expected " + str(function.arity()) + " arguments but got " + str(len(arguments)) + " instead.")
+        return function.call(self, arguments)
     
     def visitVariableExpr(self, Expr: Variable):
         return self.environment.get(Expr.name)

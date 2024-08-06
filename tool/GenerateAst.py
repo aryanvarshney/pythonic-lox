@@ -12,6 +12,7 @@ class GenerateAst:
         GenerateAst.defineAst(outputDir, "Expr", [
             "Assign     -> name: Token, value: Expr",
             "Binary     -> left: Expr, operator: Token, right: Expr",
+            "Call       -> callee: Expr, paren: Token, arguments",
             "Grouping   -> expression: Expr",
             "Literal    -> value",
             "Logical    -> left: Expr, operator: Token, right: Expr",
