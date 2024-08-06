@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from Environment import Environment
 from Stmt import Function
+from ReturnBreak import ReturnBreak
 
 class LoxCallable(ABC):
     @abstractmethod
@@ -12,15 +13,19 @@ class LoxCallable(ABC):
         pass
 
 class LoxFunction(LoxCallable):
-    def __init__(self, declaration: Function):
+    def __init__(self, declaration: Function, closure: Environment):
         self.declaration = declaration
+        self.closure = closure
 
     def call(self, interpreter, arguments):
-        environment = Environment(interpreter.global_scope)
+        environment = Environment(self.closure)
         for i in range(len(self.declaration.params)):
             environment.define(self.declaration.params[i].lexeme, arguments[i])
         
-        interpreter.executeBlock(self.declaration.body, environment)
+        try:
+            interpreter.executeBlock(self.declaration.body, environment)
+        except ReturnBreak as returnValue:
+            return returnValue.value
         return None
     
     def arity(self):

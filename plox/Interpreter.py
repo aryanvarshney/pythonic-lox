@@ -1,10 +1,11 @@
 from Expr import Expr, Grouping, Literal, Unary, Binary, Assign, Variable, Logical, Call
-from Stmt import Stmt, Print, Expression, Block, Var, If, While, Function
+from Stmt import Stmt, Print, Expression, Block, Var, If, While, Function, Return
 from Token import Token, TokenType
 from RuntimeErr import RuntimeErr
 from LoxError import LoxError
 from Environment import Environment
 from LoxCallable import LoxCallable, LoxFunction
+from ReturnBreak import ReturnBreak
 import time
 
 class Interpreter(Expr.Visitor, Stmt.Visitor):
@@ -122,7 +123,7 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
         self.evaluate(Stmt.expression)
 
     def visitFunctionStmt(self, Stmt: Function):
-        function = LoxFunction(Stmt)
+        function = LoxFunction(Stmt, self.environment)
         self.environment.define(Stmt.name.lexeme, function)
 
     def visitIfStmt(self, Stmt: If):
@@ -134,6 +135,13 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
     def visitPrintStmt(self, Stmt: Print):
         value = self.evaluate(Stmt.expression)
         print(self.stringify(value))
+
+    def visitReturnStmt(self, Stmt: Return):
+        value = None
+        if Stmt.value != None:
+            value = self.evaluate(Stmt.value)
+        
+        raise ReturnBreak(value)
     
     def visitVarStmt(self, Stmt: Var):
         value = None

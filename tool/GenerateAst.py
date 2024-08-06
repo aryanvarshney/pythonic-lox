@@ -26,6 +26,7 @@ class GenerateAst:
             "Function   -> name: Token, params, body",
             "If         -> condition: Expr, thenBranch: Stmt, elseBranch: Stmt",
             "Print      -> expression: Expr",
+            "Return     -> keyword: Token, value: Expr",
             "Var        -> name: Token, initializer: Expr",
             "While      -> condition: Expr, body: Stmt"
         ])
