@@ -3,11 +3,18 @@ from Stmt import Stmt, Print, Expression, Block, Var, If, While, Function, Retur
 from Token import Token
 from LoxError import LoxError
 from Interpreter import Interpreter
+from enum import Enum
+
+class FunctionType(Enum):
+    NONE = "nil"
+    FUNCTION = "function"
 
 class Resolver(Expr.Visitor, Stmt.Visitor):
     def __init__(self, interpreter: Interpreter):
         self.interpreter = interpreter
         self.scopes = []
+        self.currentFunction = FunctionType.NONE
+        self.hadError = False
 
     def resolveStmts(self, statements):
         for statement in statements:
@@ -19,13 +26,17 @@ class Resolver(Expr.Visitor, Stmt.Visitor):
     def resolveExpr(self, Expr: Expr):
         Expr.accept(self)
     
-    def resolveFunction(self, function: Function):
+    def resolveFunction(self, function: Function, type: FunctionType):
+        enclosingFunction = self.currentFunction
+        self.currentFunction = type
+        
         self.beginScope()
         for param in function.params:
             self.declare(param)
             self.define(param)
         self.resolveStmts(function.body)
         self.endScope()
+        self.currentFunction = enclosingFunction
     
     def beginScope(self):
         self.scopes.append({})
@@ -36,8 +47,11 @@ class Resolver(Expr.Visitor, Stmt.Visitor):
     def declare(self, name: Token):
         if len(self.scopes) == 0:
             return
-        
-        self.scopes[-1][name.lexeme] = False
+        scope = self.scopes[-1]
+        if name.lexeme in scope:
+            self.hadError = True
+            LoxError.errorToken(name, "Already a variable with this in this scope.")
+        scope[name.lexeme] = False
 
     def resolveLocal(self, Expr: Expr, name: Token):
         for i in reversed(range(len(self.scopes))):
@@ -63,7 +77,7 @@ class Resolver(Expr.Visitor, Stmt.Visitor):
         self.declare(Stmt.name)
         self.define(Stmt.name)
 
-        self.resolveFunction(Stmt)
+        self.resolveFunction(Stmt, FunctionType.FUNCTION)
 
     def visitIfStmt(self, Stmt: If):
         self.resolveExpr(Stmt.condition)
@@ -75,6 +89,10 @@ class Resolver(Expr.Visitor, Stmt.Visitor):
         self.resolveExpr(Stmt.expression)
     
     def visitReturnStmt(self, Stmt: Return):
+        if self.currentFunction == FunctionType.NONE:
+            self.hadError = True
+            LoxError.errorToken(Stmt.keyword, "Can't return from top level code.")
+
         if Stmt.value is not None:
             self.resolveExpr(Stmt.value)
     
@@ -90,6 +108,7 @@ class Resolver(Expr.Visitor, Stmt.Visitor):
     
     def visitVariableExpr(self, Expr: Variable):
         if len(self.scopes) != 0 and Expr.name.lexeme in self.scopes[-1] and self.scopes[-1][Expr.name.lexeme] == False:
+            self.hadError = True
             LoxError.errorToken(Expr.name, "Can't read local variable in its own initializer")
         
         self.resolveLocal(Expr, Expr.name)

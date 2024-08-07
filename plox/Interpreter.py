@@ -12,6 +12,7 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
     hadRuntimeError = False
     environment = Environment()
     global_scope = environment
+    local_scope = {}
 
     def __init__(self):
         class ClockCallable(LoxCallable):
@@ -117,7 +118,14 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
         return function.call(self, arguments)
     
     def visitVariableExpr(self, Expr: Variable):
-        return self.environment.get(Expr.name)
+        return self.lookUpVariable(Expr.name, Expr)
+
+    def lookUpVariable(self, name: Token, Expr: Expr):
+        if str(Expr) not in self.local_scope:
+            return self.global_scope.get(name)
+        distance = locals[str(Expr)]
+        return self.environment.getAt(distance, name.lexeme)
+
     
     def visitExpressionStmt(self, Stmt: Expression):
         self.evaluate(Stmt.expression)
@@ -156,7 +164,12 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
 
     def visitAssignExpr(self, Expr: Assign):
         value = self.evaluate(Expr.value)
-        self.environment.assign(Expr.name, value)
+        
+        if str(Expr) not in self.local_scope:
+            self.global_scope.assign(Expr.name, value)
+        distance = self.local_scope[str(Expr)]
+        self.environment.assignAt(distance, Expr.name, value)
+        
         return value
     
     def visitBlockStmt(self, Stmt: Block):
@@ -201,6 +214,9 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
     
     def execute(self, stmt: Stmt):
         stmt.accept(self)
+    
+    def resolve(self, expr: Expr, depth: int):
+        self.local_scope[str(expr)] = depth
     
     def executeBlock(self, statements, environment: Environment):
         previous = self.environment

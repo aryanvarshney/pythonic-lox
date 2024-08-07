@@ -4,6 +4,7 @@ from Scanner import Scanner
 from Parser import Parser
 from AstPrinter import AstPrinter
 from Interpreter import Interpreter
+from Resolver import Resolver
 
 class Lox:
     hadError = False
@@ -53,7 +54,17 @@ class Lox:
         parser = Parser(tokens)
         statements = parser.parse()
 
-        if Lox.hadError:
+        if parser.hadError:
+            Lox.hadError = True
+            parser.hadError = False
+            return
+        
+        resolver = Resolver(Lox.interpreter)
+        resolver.resolveStmts(statements)
+
+        if resolver.hadError:
+            Lox.hadError = True
+            resolver.hadError = False
             return
         
         Lox.interpreter.interpret(statements)

@@ -12,6 +12,7 @@ class Parser():
     def __init__(self, tokens):
         self.tokens = tokens
         self.current = 0
+        self.hadError = False
 
     def parse(self):
         statements = []
@@ -313,6 +314,7 @@ class Parser():
         return self.tokens[self.current - 1]
     
     def error(self, token: Token, message: str):
+        self.hadError = True
         LoxError.errorToken(token, message)
         return self.ParseError()
     

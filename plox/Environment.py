@@ -9,6 +9,19 @@ class Environment:
     def define(self, name: str, value):
         self.value_map[name] = value
     
+    def ancestor(self, distance: int):
+        environment = self
+        for i in range(distance):
+            environment = environment.enclosing
+        
+        return environment
+    
+    def getAt(self, distance: int, name: str):
+        return self.ancestor(distance).value_map[name]
+    
+    def assignAt(self, distance: int, name: Token, value):
+        self.ancestor(distance).value_map[name.lexeme] = value
+    
     def get(self, name: Token):
         if name.lexeme in self.value_map:
             return self.value_map[name.lexeme]
